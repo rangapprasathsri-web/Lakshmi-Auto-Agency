@@ -413,6 +413,69 @@
   });
 
   // ============================================================
+  // GLOBAL SCROLL PROGRESS BAR
+  // ============================================================
+  const globalProgress = document.getElementById('globalScrollProgress');
+  
+  function updateGlobalScrollProgress() {
+    if (!globalProgress) return;
+    const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+    if (totalHeight <= 0) return;
+    const progress = (window.pageYOffset / totalHeight) * 100;
+    globalProgress.style.width = Math.min(100, Math.max(0, progress)) + '%';
+  }
+
+  window.addEventListener('scroll', updateGlobalScrollProgress, { passive: true });
+
+  // ============================================================
+  // AMBIENT CURSOR GLOW TRAIL
+  // ============================================================
+  const cursorGlow = document.getElementById('cursorGlow');
+  let mouseX = 0, mouseY = 0;
+  let glowX = 0, glowY = 0;
+
+  if (cursorGlow && window.innerWidth > 768) {
+    window.addEventListener('mousemove', function(e) {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    function animateCursorGlow() {
+      glowX += (mouseX - glowX) * 0.1;
+      glowY += (mouseY - glowY) * 0.1;
+      cursorGlow.style.left = glowX + 'px';
+      cursorGlow.style.top = glowY + 'px';
+      requestAnimationFrame(animateCursorGlow);
+    }
+    requestAnimationFrame(animateCursorGlow);
+  }
+
+  // ============================================================
+  // 3D TILT EFFECT ON CARDS
+  // ============================================================
+  const tiltCards = document.querySelectorAll('.bike-card, .service-card, .why-card');
+
+  if (window.innerWidth > 768) {
+    tiltCards.forEach(function(card) {
+      card.addEventListener('mousemove', function(e) {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -6;
+        const rotateY = ((x - centerX) / centerX) * 6;
+
+        card.style.transform = 'perspective(1000px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(2) + 'deg) translateY(-6px)';
+      });
+
+      card.addEventListener('mouseleave', function() {
+        card.style.transform = '';
+      });
+    });
+  }
+
+  // ============================================================
   // PERFORMANCE — Throttle scroll events
   // ============================================================
   let ticking = false;
@@ -427,3 +490,4 @@
   }, { passive: true });
 
 })();
+
